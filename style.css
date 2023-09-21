@@ -1,0 +1,85 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins',sans-serif;
+    box-sizing: border-box;
+}
+
+body{
+    background: burlywood;
+}
+.app{
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto 0;
+    border-radius: 10px;
+    padding: 30px;
+}
+.app h1{
+    font-size: 25px;
+    color: blueviolet;
+    font-weight: 600;
+    border-bottom: 1px solid black;
+    padding-bottom: 30px;
+}
+.quiz{
+   padding: 20px 0;    
+   display: none;
+}
+.quiz h2{
+    font-size: 20px;
+    color: brown;
+    font-weight: 600;
+}
+
+.answer-buttons{
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+   padding: 20px 0;    
+}
+
+.btn{
+    padding: 15px;
+    background: white;
+    color: blueviolet;
+    font-weight: 500;
+    border: 1px solid brown;
+    text-align: left;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn:hover{
+    background: rgb(199, 199, 199);
+    color: white;
+}
+#next-btn{
+    background: blueviolet;
+    color: white;
+    font-size: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    border: 0;
+    margin: 20px auto 0;
+    width: 150px;
+    cursor: pointer;
+    display: none;
+}
+
+#start-btn{
+    background: blueviolet;
+    color: white;
+    font-size: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    border: 0;
+    margin: 20px auto 0;
+    width: 150px;
+    cursor: pointer;
+    text-align: center;
+}
