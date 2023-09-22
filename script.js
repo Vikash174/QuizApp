@@ -1,91 +1,145 @@
-
-const totalQuestions = 10;
-const API_URL = `https://opentdb.com/api.php?amount=${totalQuestions}&category=18&type=multiple`;
-const startButton = document.getElementById("start-btn");
+const totalquestionList = 10;
+const API_URL = `https://opentdb.com/api.php?amount=${totalquestionList}&category=18&type=multiple`;
+const questionELement = document.getElementById("question");
+const answerButtons = document.querySelector(".answer-buttons");
 const nextButton = document.getElementById("next-btn");
-const question = document.getElementById("question");
-let answerButtons = document.querySelectorAll(".btn");
-let currentQuestionCount = -1;
-
+let currentQuestionIndex = 0;
+let score = 0;
+let questionList = new Array();
  
 
-async function getQuestionsFromApi(){
+async function getquestionListFromApi(){
     const res = await fetch(API_URL);
       let data = await res.json();
-      startButton.addEventListener("click",function(){
-        document.querySelector(".quiz").style.display = "block";
-        startButton.style.display = "none";
-        nextButton.style.display = "block";
-        showNextQuestion(data);
+      while(questionList.length > 0) {
+        questionList.pop();
+       }
+     
+      data.results.forEach(result => {
+        let question = result.question;
+        let answers = new Array();
+         result.incorrect_answers.forEach(incorrectAnswer=>{
+              let answer = new Answer();
+              answer.text = incorrectAnswer;
+              answer.correct = false;
+              answers.push(answer);
+         });
+         let answer = new Answer();
+              answer.text = result.correct_answer;
+              answer.correct = true;
+              answers.push(answer);
+
+         let questionObj = new Question(question,answers);
+         questionList.push(questionObj);     
       });
+      console.log(questionList);
 
-      nextButton.addEventListener("click",function(){
-        // console.log("next button clicked");
-        showNextQuestion(data);
-      })
-
-}
-
-function checkAnswerAndUpdateUI(data){
-  for (let index = 0; index < answerButtons.length; index++) {
-    const button = answerButtons[index];
-       button.addEventListener("click",function(){
-          let choosenAns = button.innerHTML;
-
-          let questionInfo = data.results[currentQuestionCount]
-
-          if(choosenAns === questionInfo.correct_answer){
-            currentScore++;
-            console.log("Yeh !! Correct Answer !!");
-            button.style.backgroundColor = "green";
-          }else{
-            console.log("Oh No !! Wrong Answer !!");
-            button.style.backgroundColor = "red";
-          }
-          // console.log(choosenAns);
-       });
+       showQuestion();
   }
 
-}
+  
+
+   function startQuiz(){
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "next";
+
+    
+    getquestionListFromApi();  
+   }
 
 
-function showNextQuestion(data){
+   function resetState(){
+    
+    nextButton.style.display = "none";
+    while(answerButtons.firstChild){
+        answerButtons.removeChild(answerButtons.firstChild);
+    } 
+ }
 
-      if(currentQuestionCount !== totalQuestions-1){      
 
-               currentQuestionCount++;
-         let questionInfo = data.results[currentQuestionCount]
-          question.innerHTML = questionInfo.question;
-          
-          
-         for (let index = 0; index < answerButtons.length-1; index++) {
-             const button = answerButtons[index];
-            button.innerHTML = questionInfo.incorrect_answers[index];
+   function showQuestion(){
+    resetState();
+    let currQuestion = questionList[currentQuestionIndex];
+    let questionNumber = currentQuestionIndex + 1;
+    questionELement.innerHTML = questionNumber + ". "+ currQuestion.question;
+
+    currQuestion.answers.forEach(answer => {
+         const button = document.createElement("button");
+         button.innerHTML = answer.text;
+         button.classList.add("btn");
+         answerButtons.appendChild(button);
+         if(answer.correct){
+            button.dataset.correct = answer.correct;
          }
-         answerButtons[3].innerHTML = questionInfo.correct_answer;
+         button.addEventListener("click",selectAnswer);
+    });
+    
+}
+function selectAnswer(e){
+  const selectedBtn = e.target;
+  const isCorrect = selectedBtn.dataset.correct === "true";
+  if(isCorrect){
+      selectedBtn.classList.add("correct");
+      score++;
+  }else{
+      selectedBtn.classList.add("incorrect");
+  }
+   
+  Array.from(answerButtons.children).forEach(button =>{
+        if(button.dataset.correct === "true"){
+          button.classList.add("correct");
+        }
+        button.disabled = true;
+  });
 
-         checkAnswerAndUpdateUI(data);
-      
+  nextButton.style.display = "block";
 
-        //  console.log(currentQuestionCount);
-      }else{
-        
-        console.log(`You have reached to the end of questions. Your Score is ${currentScore}`);
-      }
+}
 
-    //  console.log(answerButtons);
-     
+function showScore(){
+  resetState();
+  questionELement.innerHTML = `You scored ${score} out of ${questionList.length}!`;
+  nextButton.innerHTML = "Play Again";
+  nextButton.style.display = "block";
 }
 
 
-getQuestionsFromApi();
+function handleNextButton(){
+  currentQuestionIndex++;
+  if(currentQuestionIndex < questionList.length){
+      showQuestion();
+  }else{
+      showScore();
+  }
+}
+
+nextButton.addEventListener("click",()=>{
+  if(currentQuestionIndex < questionList.length){
+      handleNextButton();
+  }else{
+      startQuiz();
+  }
+});
+startQuiz();
 
 
 
 
 
 
- 
-   
 
 
+
+class Question {
+  constructor(question,answers) {
+    this.question = question;
+    this.answers = answers;
+  }
+}
+class Answer {
+  constructor(text,correct) {
+    this.text = text;
+    this.correct = correct;
+  }
+}
